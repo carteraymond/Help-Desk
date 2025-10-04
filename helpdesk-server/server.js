@@ -1,34 +1,27 @@
-// server.js
-// ---------------
-// Step 0: Load environment variables (MUST be first)
-require('dotenv').config();
+require("dotenv").config();
+const express = require("express");
+const mongoose = require("mongoose");
 
-// Step 1: Import dependencies
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-
-// Step 2: Create Express app
 const app = express();
 
-// Step 3: Middleware
-app.use(cors());              // Allow cross-origin requests (Angular client)
-app.use(express.json());      // Parse JSON body
+// Middleware
+app.use(express.json());
 
-// Step 4: Test root route
-app.get('/', (req, res) => {
-  res.send('Backend server is running!');
-});
+// DB connect
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => console.log("MongoDB Connected"))
+.catch(err => console.error("MongoDB Connection Error:", err));
 
-// Step 5: Connect to MongoDB
-const mongoURI = process.env.MONGO_URI;
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
-if (!mongoURI) {
-  console.error('Error: MONGO_URI is undefined. Make sure .env exists and has MONGO_URI.');
-  process.exit(1);
-}
-if (mongoURI) {
-  console.error('Mongo Server connected succefully');
-}
 
-mongoose.co
+const userRoutes = require('./routes/users');
+const ticketRoutes = require('./routes/tickets');
+
+app.use('/users', userRoutes);
+app.use('/tickets', ticketRoutes);
+
